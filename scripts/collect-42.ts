@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export const API_BASE = "https://rest.ft.42.space/api/v1";
 const MARKET_LIMIT = 500;
@@ -256,7 +256,7 @@ export async function collect42Metrics() {
   }
 }
 
-async function refreshHotMarkets(supabase: ReturnType<typeof createClient>) {
+async function refreshHotMarkets(supabase: SupabaseClient) {
   const json = await getJson<{ data: TokenStat[] }>(
     `${API_BASE}/market-data/tokens/stats?status=live&order_by=volume&limit=100`,
   );

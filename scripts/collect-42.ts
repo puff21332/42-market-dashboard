@@ -85,6 +85,20 @@ function chunks<T>(items: T[], size: number) {
   return result;
 }
 
+function uniqueBy<T>(items: T[], key: (item: T) => string) {
+  const seen = new Set<string>();
+  const result: T[] = [];
+
+  for (const item of items) {
+    const value = key(item);
+    if (seen.has(value)) continue;
+    seen.add(value);
+    result.push(item);
+  }
+
+  return result;
+}
+
 function toIsoFromUnix(seconds: number) {
   return new Date(seconds * 1000).toISOString();
 }
@@ -192,23 +206,26 @@ async function main() {
       const activities = await fetchMarketActivities(market.address, maxActivityPages);
       tradesSeen += activities.length;
 
-      const tradeRows = activities
-        .filter((item) => item.transactionHash && item.userAddress && item.marketAddress)
-        .map((item) => ({
-          transaction_hash: item.transactionHash,
-          market_address: item.marketAddress,
-          user_address: item.userAddress,
-          type: item.type,
-          occurred_at: toIsoFromUnix(item.timestamp),
-          trade_date: toDateFromUnix(item.timestamp),
-          collateral: item.collateral ?? 0,
-          size: item.size ?? 0,
-          token_id: item.tokenId ?? "",
-          outcome: item.outcome ?? null,
-          price: item.price ?? null,
-          market_cap_at_time: item.marketCapAtTime ?? null,
-          raw: item,
-        }));
+      const tradeRows = uniqueBy(
+        activities
+          .filter((item) => item.transactionHash && item.userAddress && item.marketAddress)
+          .map((item) => ({
+            transaction_hash: item.transactionHash,
+            market_address: item.marketAddress,
+            user_address: item.userAddress,
+            type: item.type,
+            occurred_at: toIsoFromUnix(item.timestamp),
+            trade_date: toDateFromUnix(item.timestamp),
+            collateral: item.collateral ?? 0,
+            size: item.size ?? 0,
+            token_id: item.tokenId ?? "",
+            outcome: item.outcome ?? null,
+            price: item.price ?? null,
+            market_cap_at_time: item.marketCapAtTime ?? null,
+            raw: item,
+          })),
+        (item) => `${item.transaction_hash}:${item.market_address}:${item.type}:${item.token_id}`,
+      );
 
       for (const batch of chunks(tradeRows, 200)) {
         const { error } = await supabase

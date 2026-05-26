@@ -1,0 +1,26 @@
+{
+  "name": "42-market-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "collect": "tsx scripts/collect-42.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "next": "^15.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.25.1",
+    "eslint-config-next": "^15.3.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

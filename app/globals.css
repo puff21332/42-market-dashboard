@@ -1,0 +1,295 @@
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-soft: #eef3f8;
+  --text: #162033;
+  --muted: #687386;
+  --line: #dce4ee;
+  --accent: #0e7c66;
+  --accent-soft: #dff5ee;
+  --warn: #b42318;
+  --warn-soft: #fee4e2;
+  --blue: #1d5fd1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  width: min(1440px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 56px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+  padding: 24px 0 28px;
+}
+
+.hero p,
+.metric span,
+.hotCard span {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.hero h1 {
+  margin: 8px 0 0;
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.updateBox {
+  min-width: 260px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.updateBox span,
+.updateBox strong {
+  display: block;
+}
+
+.updateBox span {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.updateBox strong {
+  font-size: 16px;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric,
+.panel,
+.tablePanel,
+.empty {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.metric {
+  min-height: 136px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metric strong {
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1;
+}
+
+.metric small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.metric-good {
+  background: var(--accent-soft);
+  border-color: #b7e7d8;
+}
+
+.metric-bad {
+  background: var(--warn-soft);
+  border-color: #ffc7c2;
+}
+
+.trendGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.panel,
+.tablePanel,
+.empty {
+  padding: 18px;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+
+.panelHeader h2,
+.empty h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.panelHeader strong {
+  font-size: 15px;
+  color: var(--blue);
+}
+
+.bars {
+  height: 128px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.barSlot {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  min-width: 4px;
+}
+
+.bar {
+  width: 100%;
+  min-height: 4px;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+}
+
+.barNegative {
+  background: var(--warn);
+}
+
+.tablePanel {
+  margin-top: 12px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+th,
+td {
+  padding: 12px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.positive {
+  color: var(--accent);
+}
+
+.negative {
+  color: var(--warn);
+}
+
+.hotGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hotCard {
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  border-radius: 8px;
+  padding: 14px;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hotCard h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.hotCard p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.hotCard strong {
+  margin-top: auto;
+  font-size: 22px;
+}
+
+.empty {
+  margin-top: 12px;
+}
+
+.empty p {
+  color: var(--muted);
+  margin: 10px 0 0;
+}
+
+@media (max-width: 1100px) {
+  .metricGrid,
+  .trendGrid,
+  .hotGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  main {
+    width: min(100% - 20px, 1440px);
+    padding-top: 16px;
+  }
+
+  .hero {
+    display: block;
+  }
+
+  .updateBox {
+    margin-top: 18px;
+    min-width: 0;
+  }
+
+  .metricGrid,
+  .trendGrid,
+  .hotGrid {
+    grid-template-columns: 1fr;
+  }
+}

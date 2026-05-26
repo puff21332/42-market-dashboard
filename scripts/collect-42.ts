@@ -1,6 +1,6 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
-export const API_BASE = "https://rest.ft.42.space/api/v1";
+const API_BASE = "https://rest.ft.42.space/api/v1";
 const MARKET_LIMIT = 500;
 const ACTIVITY_LIMIT = 100;
 
@@ -125,7 +125,7 @@ async function fetchMarketActivities(marketAddress: string, maxPages: number) {
   return activities;
 }
 
-export async function collect42Metrics() {
+async function main() {
   const supabase = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false },
   });
@@ -256,7 +256,7 @@ export async function collect42Metrics() {
   }
 }
 
-async function refreshHotMarkets(supabase: SupabaseClient) {
+async function refreshHotMarkets(supabase: any) {
   const json = await getJson<{ data: TokenStat[] }>(
     `${API_BASE}/market-data/tokens/stats?status=live&order_by=volume&limit=100`,
   );
@@ -300,9 +300,7 @@ function hotRow(item: TokenStat, metricType: string, metricValue: number) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  collect42Metrics().catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

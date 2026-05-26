@@ -74,3 +74,5 @@ Actions permission refresh: 2026-05-26T11:47:28Z
 Public trigger: 2026-05-26T11:51:55Z
 
 Collector trigger retry: 2026-05-26T11:54:05Z
+
+Vercel deploy author fix: 2026-05-26T12:20:42Z

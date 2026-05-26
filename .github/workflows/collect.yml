@@ -1,6 +1,6 @@
-  name: Collect 42 Metrics
+name: Collect 42 Metrics
 
-  on:
+on:
     push:
       branches:
         - main

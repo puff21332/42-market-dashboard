@@ -280,12 +280,7 @@ async function refreshHotMarkets(supabase: any) {
     if (insert.error) throw insert.error;
   }
 
-  const cleanup = await supabase
-    .from("hot_markets")
-    .delete()
-    .neq("id", 0)
-    .lt("captured_at", new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString());
-  if (cleanup.error) throw cleanup.error;
+  // Keep cleanup out of the critical path. The dashboard reads only latest rows.
 }
 
 function hotRow(item: TokenStat, metricType: string, metricValue: number) {

@@ -8,7 +8,7 @@ async function getDashboardData() {
 
   const [latestRes, dailyRes, hotRes] = await Promise.all([
     supabase.from("latest_metrics").select("*").eq("id", true).maybeSingle<LatestMetric>(),
-    supabase.from("daily_metrics").select("*").order("date", { ascending: true }).limit(90).returns<DailyMetric[]>(),
+    supabase.from("daily_metrics").select("*").order("date", { ascending: false }).limit(31).returns<DailyMetric[]>(),
     supabase
       .from("hot_markets")
       .select("*")
@@ -23,7 +23,7 @@ async function getDashboardData() {
 
   return {
     latest: latestRes.data,
-    daily: dailyRes.data ?? [],
+    daily: (dailyRes.data ?? []).slice().reverse(),
     hotMarkets: hotRes.data ?? [],
   };
 }
@@ -151,7 +151,7 @@ export default async function Home() {
 
           <section className="tablePanel">
             <div className="panelHeader">
-              <h2>近 90 天每日指标</h2>
+              <h2>最近一个月每日指标</h2>
               <strong>{daily.length} 天</strong>
             </div>
             <div className="tableWrap">

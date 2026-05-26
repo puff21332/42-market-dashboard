@@ -70,3 +70,5 @@ Workflow trigger: 2026-05-26T11:42:55Z
 Ping trigger: 2026-05-26T11:46:32Z
 
 Actions permission refresh: 2026-05-26T11:47:28Z
+
+Public trigger: 2026-05-26T11:51:55Z

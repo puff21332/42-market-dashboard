@@ -316,6 +316,9 @@ alter table public.daily_metrics enable row level security;
 alter table public.latest_metrics enable row level security;
 alter table public.hot_markets enable row level security;
 alter table public.markets enable row level security;
+alter table public.trades enable row level security;
+alter table public.market_snapshots enable row level security;
+alter table public.collector_runs enable row level security;
 
 drop policy if exists "Public dashboard reads daily metrics" on public.daily_metrics;
 create policy "Public dashboard reads daily metrics"

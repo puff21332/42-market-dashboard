@@ -62,3 +62,5 @@
 ## 本地运行
 
 这个项目不要求你本地运行。代码可以直接推到 GitHub，由 GitHub Actions 和 Vercel 在云端执行。
+
+Last workflow refresh: 2026-05-26T11:38:20Z

@@ -298,16 +298,10 @@ function hotRow(item: TokenStat, metricType: string, metricValue: number) {
 async function refreshDashboardMetrics(supabase: any) {
   const today = new Date().toISOString().slice(0, 10);
 
-  const [marketsRes, tradesRes] = await Promise.all([
-    supabase.from("markets").select("address,status,created_at,total_market_cap,volume"),
-    supabase.from("trades").select("user_address,market_address,type,trade_date,collateral"),
+  const [markets, trades] = await Promise.all([
+    fetchAllRows(supabase, "markets", "address,status,created_at,total_market_cap,volume"),
+    fetchAllRows(supabase, "trades", "user_address,market_address,type,trade_date,collateral"),
   ]);
-
-  if (marketsRes.error) throw marketsRes.error;
-  if (tradesRes.error) throw tradesRes.error;
-
-  const markets = marketsRes.data ?? [];
-  const trades = tradesRes.data ?? [];
   const allUsers = new Set<string>();
   const todayUsers = new Set<string>();
   const firstTradeDate = new Map<string, string>();
@@ -382,6 +376,21 @@ async function refreshDashboardMetrics(supabase: any) {
     { onConflict: "id" },
   );
   if (latest.error) throw latest.error;
+}
+
+async function fetchAllRows(supabase: any, table: string, columns: string) {
+  const pageSize = 1000;
+  const rows: any[] = [];
+
+  for (let from = 0; ; from += pageSize) {
+    const to = from + pageSize - 1;
+    const result = await supabase.from(table).select(columns).range(from, to);
+    if (result.error) throw result.error;
+    rows.push(...(result.data ?? []));
+    if (!result.data || result.data.length < pageSize) break;
+  }
+
+  return rows;
 }
 
 main().catch((error) => {

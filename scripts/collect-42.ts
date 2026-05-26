@@ -283,6 +283,7 @@ async function refreshHotMarkets(supabase: any) {
   const cleanup = await supabase
     .from("hot_markets")
     .delete()
+    .neq("id", 0)
     .lt("captured_at", new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString());
   if (cleanup.error) throw cleanup.error;
 }

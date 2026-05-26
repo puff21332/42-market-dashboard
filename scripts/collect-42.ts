@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const API_BASE = "https://rest.ft.42.space/api/v1";
+export const API_BASE = "https://rest.ft.42.space/api/v1";
 const MARKET_LIMIT = 500;
 const ACTIVITY_LIMIT = 100;
 
@@ -125,7 +125,7 @@ async function fetchMarketActivities(marketAddress: string, maxPages: number) {
   return activities;
 }
 
-async function main() {
+export async function collect42Metrics() {
   const supabase = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false },
   });
@@ -300,7 +300,9 @@ function hotRow(item: TokenStat, metricType: string, metricValue: number) {
   };
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  collect42Metrics().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

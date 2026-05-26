@@ -319,36 +319,23 @@ async function refreshDashboardMetrics(supabase: any) {
     fetchAllRows(supabase, "markets", "address,status,created_at,total_market_cap,volume"),
     fetchAllRows(supabase, "trades", "user_address,market_address,type,trade_date,collateral"),
   ]);
-  const allUsers = new Set<string>();
-  const todayUsers = new Set<string>();
   const firstTradeDate = new Map<string, string>();
-  const activeMarkets = new Set<string>();
-  const marketVolume = new Map<string, number>();
-
-  let totalVolume = 0;
-  let dailyVolume = 0;
-  let buyVolume = 0;
-  let sellVolume = 0;
+  const dates = new Set<string>([today]);
 
   for (const trade of trades) {
     const user = String(trade.user_address).toLowerCase();
-    const collateral = Number(trade.collateral ?? 0);
-    allUsers.add(user);
-    totalVolume += collateral;
+    dates.add(trade.trade_date);
 
     const previous = firstTradeDate.get(user);
     if (!previous || trade.trade_date < previous) firstTradeDate.set(user, trade.trade_date);
-
-    if (trade.trade_date === today) {
-      todayUsers.add(user);
-      activeMarkets.add(trade.market_address);
-      dailyVolume += collateral;
-      if (trade.type === "MINT") buyVolume += collateral;
-      if (trade.type === "REDEEM") sellVolume += collateral;
-      marketVolume.set(trade.market_address, (marketVolume.get(trade.market_address) ?? 0) + collateral);
-    }
   }
 
+  for (const market of markets) {
+    const created = String(market.created_at ?? "").slice(0, 10);
+    if (created) dates.add(created);
+  }
+
+  const sortedDates = [...dates].filter(Boolean).sort();
   const liveMarkets = markets.filter((market: any) => market.status === "live");
   const totalMarketCap = liveMarkets.reduce((sum: number, market: any) => sum + Number(market.total_market_cap ?? 0), 0);
   const top5MarketCap = liveMarkets
@@ -356,38 +343,75 @@ async function refreshDashboardMetrics(supabase: any) {
     .sort((a: number, b: number) => b - a)
     .slice(0, 5)
     .reduce((sum: number, value: number) => sum + value, 0);
-  const top5Volume = [...marketVolume.values()]
-    .sort((a, b) => b - a)
-    .slice(0, 5)
-    .reduce((sum, value) => sum + value, 0);
 
-  const row = {
-    date: today,
-    total_users: allUsers.size,
-    new_users: [...firstTradeDate.values()].filter((date) => date === today).length,
-    dau: todayUsers.size,
-    total_markets: markets.length,
-    new_markets: markets.filter((market: any) => String(market.created_at ?? "").slice(0, 10) === today).length,
-    live_markets: liveMarkets.length,
-    total_volume: totalVolume,
-    daily_volume: dailyVolume,
-    buy_volume: buyVolume,
-    sell_volume: sellVolume,
-    net_flow: buyVolume - sellVolume,
-    total_market_cap: totalMarketCap,
-    active_markets: activeMarkets.size,
-    top5_volume_share: dailyVolume > 0 ? (top5Volume / dailyVolume) * 100 : 0,
-    top5_market_cap_share: totalMarketCap > 0 ? (top5MarketCap / totalMarketCap) * 100 : 0,
-    updated_at: new Date().toISOString(),
-  };
+  const rows = sortedDates.map((date) => {
+    const allUsers = new Set<string>();
+    const dayUsers = new Set<string>();
+    const activeMarkets = new Set<string>();
+    const marketVolume = new Map<string, number>();
 
-  const daily = await supabase.from("daily_metrics").upsert(row, { onConflict: "date" });
-  if (daily.error) throw daily.error;
+    let totalVolume = 0;
+    let dailyVolume = 0;
+    let buyVolume = 0;
+    let sellVolume = 0;
+
+    for (const trade of trades) {
+      const user = String(trade.user_address).toLowerCase();
+      const collateral = Number(trade.collateral ?? 0);
+
+      if (trade.trade_date <= date) {
+        allUsers.add(user);
+        totalVolume += collateral;
+      }
+
+      if (trade.trade_date === date) {
+        dayUsers.add(user);
+        activeMarkets.add(trade.market_address);
+        dailyVolume += collateral;
+        if (trade.type === "MINT") buyVolume += collateral;
+        if (trade.type === "REDEEM") sellVolume += collateral;
+        marketVolume.set(trade.market_address, (marketVolume.get(trade.market_address) ?? 0) + collateral);
+      }
+    }
+
+    const top5Volume = [...marketVolume.values()]
+      .sort((a, b) => b - a)
+      .slice(0, 5)
+      .reduce((sum, value) => sum + value, 0);
+
+    return {
+      date,
+      total_users: allUsers.size,
+      new_users: [...firstTradeDate.values()].filter((firstDate) => firstDate === date).length,
+      dau: dayUsers.size,
+      total_markets: markets.filter((market: any) => String(market.created_at ?? "").slice(0, 10) <= date).length,
+      new_markets: markets.filter((market: any) => String(market.created_at ?? "").slice(0, 10) === date).length,
+      live_markets: date === today ? liveMarkets.length : 0,
+      total_volume: totalVolume,
+      daily_volume: dailyVolume,
+      buy_volume: buyVolume,
+      sell_volume: sellVolume,
+      net_flow: buyVolume - sellVolume,
+      total_market_cap: date === today ? totalMarketCap : 0,
+      active_markets: activeMarkets.size,
+      top5_volume_share: dailyVolume > 0 ? (top5Volume / dailyVolume) * 100 : 0,
+      top5_market_cap_share: date === today && totalMarketCap > 0 ? (top5MarketCap / totalMarketCap) * 100 : 0,
+      updated_at: new Date().toISOString(),
+    };
+  });
+
+  for (const batch of chunks(rows, 200)) {
+    const daily = await supabase.from("daily_metrics").upsert(batch, { onConflict: "date" });
+    if (daily.error) throw daily.error;
+  }
+
+  const latestRow = rows.find((row) => row.date === today) ?? rows.at(-1);
+  if (!latestRow) return;
 
   const latest = await supabase.from("latest_metrics").upsert(
     {
       id: true,
-      ...Object.fromEntries(Object.entries(row).filter(([key]) => key !== "date")),
+      ...Object.fromEntries(Object.entries(latestRow).filter(([key]) => key !== "date")),
       last_collected_at: new Date().toISOString(),
     },
     { onConflict: "id" },

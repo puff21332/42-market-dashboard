@@ -16,11 +16,14 @@
 3. 在 GitHub 仓库设置 Actions secrets：
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
-4. 到 GitHub Actions 手动运行一次 `Collect 42 Metrics`。
-5. 在 Vercel 导入这个 GitHub 仓库，设置环境变量：
+4. 把 `github-workflows/collect.yml` 复制到 `.github/workflows/collect.yml`。
+5. 到 GitHub Actions 手动运行一次 `Collect 42 Metrics`。
+6. 在 Vercel 导入这个 GitHub 仓库，设置环境变量：
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-6. 部署完成后，公开页面会读取 Supabase 里的聚合数据。
+7. 部署完成后，公开页面会读取 Supabase 里的聚合数据。
+
+当前推送用的 GitHub token 没有 `workflow` scope，所以真正的 `.github/workflows/collect.yml` 需要在 GitHub 网页上创建，或给 `gh` 刷新 workflow 权限后再提交。
 
 ## 采集频率
 

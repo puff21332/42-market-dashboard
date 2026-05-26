@@ -1,0 +1,46 @@
+name: Collect 42 Metrics
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "10 0,8,16 * * *"
+  workflow_dispatch:
+    inputs:
+      max_activity_pages:
+        description: "Activity pages per market. Use 3 for normal runs, higher for backfill."
+        required: false
+        default: "3"
+      activity_statuses:
+        description: "Market statuses to scan for activity."
+        required: false
+        default: "live,ended,resolved"
+      max_markets:
+        description: "Optional cap for activity-scanned markets. 0 means no cap."
+        required: false
+        default: "0"
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run collect
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MAX_ACTIVITY_PAGES: ${{ inputs.max_activity_pages || '3' }}
+          ACTIVITY_STATUSES: ${{ inputs.activity_statuses || 'live,ended,resolved' }}
+          MAX_MARKETS: ${{ inputs.max_markets || '0' }}
+          COLLECT_STATUSES: live,ended,resolved,finalised

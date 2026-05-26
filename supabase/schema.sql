@@ -339,3 +339,8 @@ drop policy if exists "Public dashboard reads markets" on public.markets;
 create policy "Public dashboard reads markets"
 on public.markets for select
 using (true);
+
+grant usage on schema public to service_role;
+grant select, insert, update, delete on all tables in schema public to service_role;
+grant usage, select on all sequences in schema public to service_role;
+grant execute on function public.refresh_dashboard_metrics() to service_role;

@@ -1,12 +1,12 @@
 name: Collect 42 Metrics
 
 on:
-    push:
-      branches:
-        - main
-    schedule:
-      - cron: "10 0,8,16 * * *"
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "10 0,8,16 * * *"
+  workflow_dispatch:
     inputs:
       max_activity_pages:
         description: "Activity pages per market. Use 3 for normal runs, higher for backfill."

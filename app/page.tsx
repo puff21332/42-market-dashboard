@@ -105,7 +105,7 @@ export default async function Home() {
       <header className="hero">
         <div>
           <p>42.space Public Market Dashboard</p>
-          <h1>市场增长、资金流向与交易质量</h1>
+          <h1>市场增长、资金流向与买卖活动</h1>
         </div>
         <div className="updateBox">
           <span>每 8 小时更新</span>
@@ -124,7 +124,7 @@ export default async function Home() {
             <MetricCard label="总用户" value={compactNumber(latest?.total_users)} hint="累计交易钱包数" />
             <MetricCard label="每日活跃用户" value={compactNumber(latest?.dau)} hint="当天有交易的钱包" />
             <MetricCard label="当前总市场资金" value={money(latest?.total_market_cap)} hint="Live 市场资金池" />
-            <MetricCard label="每日交易量" value={money(latest?.daily_volume)} hint="买入 + 卖出" />
+            <MetricCard label="每日买入量" value={money(latest?.buy_volume)} hint="MINT collateral" />
             <MetricCard
               label="净资金流入"
               value={signedMoney(latest?.net_flow)}
@@ -141,7 +141,7 @@ export default async function Home() {
             <TrendPanel title="市场供给" value={`新增 ${compactNumber(today?.new_markets)}`}>
               <MiniBars data={daily} field="new_markets" format={compactNumber} />
             </TrendPanel>
-            <TrendPanel title="资金流动" value={signedMoney(today?.net_flow)}>
+            <TrendPanel title="净资金流入" value={signedMoney(today?.net_flow)}>
               <MiniBars data={daily} field="net_flow" format={money} />
             </TrendPanel>
             <TrendPanel title="交易集中度" value={percent(today?.top5_volume_share)}>
@@ -163,7 +163,7 @@ export default async function Home() {
                     <th>新增用户</th>
                     <th>DAU</th>
                     <th>新增市场</th>
-                    <th>交易量</th>
+                    <th>买卖总额</th>
                     <th>买入</th>
                     <th>卖出</th>
                     <th>净流入</th>

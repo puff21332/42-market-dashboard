@@ -369,13 +369,14 @@ async function refreshDashboardMetrics(supabase: any) {
     for (const trade of trades) {
       const user = String(trade.user_address).toLowerCase();
       const collateral = Number(trade.collateral ?? 0);
+      const isTrade = trade.type === "MINT" || trade.type === "REDEEM";
 
       if (trade.trade_date <= date) {
         allUsers.add(user);
-        totalVolume += collateral;
+        if (isTrade) totalVolume += collateral;
       }
 
-      if (trade.trade_date === date) {
+      if (trade.trade_date === date && isTrade) {
         dayUsers.add(user);
         activeMarkets.add(trade.market_address);
         dailyVolume += collateral;

@@ -104,7 +104,18 @@ function toIsoFromUnix(seconds: number) {
 }
 
 function toDateFromUnix(seconds: number) {
-  return toIsoFromUnix(seconds).slice(0, 10);
+  return toBeijingDate(new Date(seconds * 1000));
+}
+
+function toBeijingDate(value: Date | string | null | undefined) {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }
 
 async function fetchMarkets(statuses: string[]) {
@@ -313,7 +324,7 @@ function hotRow(item: TokenStat, metricType: string, metricValue: number) {
 }
 
 async function refreshDashboardMetrics(supabase: any) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toBeijingDate(new Date());
 
   const [markets, trades] = await Promise.all([
     fetchAllRows(supabase, "markets", "address,status,created_at,total_market_cap,volume"),
@@ -331,7 +342,7 @@ async function refreshDashboardMetrics(supabase: any) {
   }
 
   for (const market of markets) {
-    const created = String(market.created_at ?? "").slice(0, 10);
+    const created = toBeijingDate(market.created_at);
     if (created) dates.add(created);
   }
 
@@ -384,8 +395,8 @@ async function refreshDashboardMetrics(supabase: any) {
       total_users: allUsers.size,
       new_users: [...firstTradeDate.values()].filter((firstDate) => firstDate === date).length,
       dau: dayUsers.size,
-      total_markets: markets.filter((market: any) => String(market.created_at ?? "").slice(0, 10) <= date).length,
-      new_markets: markets.filter((market: any) => String(market.created_at ?? "").slice(0, 10) === date).length,
+      total_markets: markets.filter((market: any) => toBeijingDate(market.created_at) <= date).length,
+      new_markets: markets.filter((market: any) => toBeijingDate(market.created_at) === date).length,
       live_markets: date === today ? liveMarkets.length : 0,
       total_volume: totalVolume,
       daily_volume: dailyVolume,
